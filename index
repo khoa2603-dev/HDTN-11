@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hành Trình Nghề Nghiệp & An Toàn - 11</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet">
+    <style>
+        /* Global & Background Animation */
+        body { 
+            font-family: 'Lexend', sans-serif; 
+            scroll-behavior: smooth; 
+            padding-top: 80px;
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #334155);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #f8fafc;
+        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* Ẩn text lỗi khi mất ảnh để UI luôn sạch */
+        img { font-size: 0; color: transparent; }
+
+        /* Navigation */
+        .nav-menu { position: fixed; top: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px); z-index: 1000; border-bottom: 2px solid #38bdf8; display: flex; justify-content: center; flex-wrap: wrap; }
+        .nav-btn { transition: all 0.3s; color: #94a3b8; font-weight: bold; padding: 15px 20px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .nav-btn:hover { color: #fff; background: rgba(56, 189, 248, 0.1); }
+        .nav-btn.active { color: #38bdf8; border-bottom: 4px solid #38bdf8; background: rgba(56, 189, 248, 0.15); }
+
+        /* Glassmorphism Panels */
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border-radius: 1.5rem; }
+
+        /* Puzzle Part 1 */
+        .puzzle-container-wrapper { position: relative; width: 100%; max-width: 750px; margin: auto; aspect-ratio: 16/9; background: #0f172a; border: 4px solid #38bdf8; border-radius: 12px; overflow: hidden; box-shadow: 0 0 20px rgba(56, 189, 248, 0.3); }
+        .career-image-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; transition: filter 0.5s; }
+        .puzzle-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; gap: 2px; }
+        .puzzle-piece { background: rgba(15, 23, 42, 0.95); color: #38bdf8; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(56,189,248,0.2); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); font-size: 3rem; font-weight: 900; user-select: none; backdrop-filter: blur(5px); }
+        .puzzle-piece:hover { background: rgba(56, 189, 248, 0.2); transform: scale(0.98); }
+        .piece-hidden { opacity: 0; pointer-events: none; transform: scale(1.1); }
+        .hint-text { position: absolute; background: rgba(0, 0, 0, 0.85); color: #fde047; font-size: 0.8rem; padding: 8px 12px; border-radius: 8px; pointer-events: none; z-index: 5; text-align: center; font-weight: bold; border: 1px solid #facc15; max-width: 30%; box-shadow: 0 4px 15px rgba(0,0,0,0.5); animation: floatUp 0.5s ease-out; }
+        
+        /* Buttons & Interactions */
+        .option-btn { transition: all 0.3s ease; border: 2px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); padding: 1.2rem; border-radius: 1rem; font-weight: bold; color: #e2e8f0; width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+        .option-btn:not(.disabled):hover { border-color: #38bdf8; background: rgba(56,189,248,0.1); transform: translateX(8px); box-shadow: 0 0 15px rgba(56,189,248,0.2); }
+        .btn-correct { background-color: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; color: #34d399 !important; box-shadow: 0 0 20px rgba(16,185,129,0.3); }
+        .btn-wrong { background-color: rgba(239, 68, 68, 0.2) !important; border-color: #ef4444 !important; color: #f87171 !important; }
+        .disabled { cursor: not-allowed; opacity: 0.7; pointer-events: none; }
+
+        /* Modals */
+        #sub-quiz-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 1100; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155; box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
+
+        /* Animations */
+        .shake { animation: shake 0.5s; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        @keyframes floatUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Era Buttons */
+        .btn-era { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; }
+        .active-era { background: rgba(56,189,248,0.15) !important; border-color: #38bdf8 !important; color: #38bdf8 !important; box-shadow: 0 0 15px rgba(56,189,248,0.3); }
+
+        /* Roulette Canvas */
+        .roulette-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; }
+        #name-display { font-size: 4rem; font-weight: 900; color: #fde047; text-shadow: 0 0 20px rgba(253, 224, 71, 0.5); text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center; transition: all 0.1s; letter-spacing: 2px;}
+        .spin-active { animation: blurText 0.1s infinite; color: #fff !important; text-shadow: none !important;}
+        @keyframes blurText { 0% { filter: blur(0px); transform: translateY(0); } 50% { filter: blur(3px); transform: translateY(-5px); } 100% { filter: blur(0px); transform: translateY(0); } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Stat Table */
+        .stat-table th, .stat-table td { padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .stat-table th { background: rgba(0,0,0,0.2); color: #38bdf8; font-weight: bold; text-transform: uppercase; }
+        .stat-table tr:hover { background: rgba(255,255,255,0.02); }
+    </style>
+</head>
+<body>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            if(type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.start(now); osc.stop(now + 0.5);
+            } else if(type === 'wrong') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+                gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
+            } else if(type === 'tick') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.05, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now); osc.stop(now + 0.05);
+            } else if(type === 'win') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(600, now + 0.1); osc.frequency.setValueAtTime(800, now + 0.2);
+                gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0, now + 0.6);
+                osc.start(now); osc.stop(now + 0.6);
+            }
+        }
+    </script>
+
+    <nav class="nav-menu shadow-lg">
+        <div id="nav-1" class="nav-btn active" onclick="switchPart(1)"><i class="fa-solid fa-compass"></i> KHÁM PHÁ NGHỀ NGHIỆP</div>
+        <div id="nav-2" class="nav-btn" onclick="switchPart(2)"><i class="fa-solid fa-shield-halved"></i> AN TOÀN LAO ĐỘNG</div>
+        <div id="nav-3" class="nav-btn" onclick="switchPart(3)"><i class="fa-solid fa-users-viewfinder"></i> VÒNG QUAY</div>
+        <div id="nav-4" class="nav-btn" onclick="switchPart(4)"><i class="fa-solid fa-brain"></i> ĐỊNH HƯỚNG TƯƠNG LAI</div>
+    </nav>
+
+    <header class="py-8 px-6 text-center">
+        <h1 class="text-4xl md:text-6xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600 drop-shadow-lg mb-3">Hành Trình 11</h1>
+        <p class="text-slate-300 mt-2 font-medium text-lg"><i class="fa-solid fa-rocket text-sky-400 mr-2"></i>Khám Phá Tri Thức & Làm Chủ Tương Lai</p>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-6 mb-20">
+        
+        <section id="content-part-1" class="space-y-8 fade-in">
+            <div class="glass-panel p-6 md:p-8">
+                <div class="flex flex-wrap justify-center gap-3 mb-10 overflow-x-auto p-2 scrollbar-hide" id="era-buttons"></div>
+                
+                <div id="game-board" class="hidden">
+                    <div class="puzzle-container-wrapper mb-8">
+                        <div class="career-image-bg" id="career-img"></div>
+                        <div class="puzzle-grid" id="puzzle-grid"></div>
+                    </div>
+                    
+                    <div id="quiz-area" class="hidden max-w-3xl mx-auto p-8 bg-slate-800/80 backdrop-blur-md rounded-3xl border border-sky-500/30 shadow-[0_0_30px_rgba(14,165,233,0.2)]">
+                        <h4 class="text-2xl font-black text-center mb-8 text-sky-400 uppercase tracking-widest"><i class="fa-solid fa-circle-question mr-2"></i> ĐÂY LÀ NGHỀ NGHIỆP GÌ?</h4>
+                        <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+                    
+                    <div id="answer-box" class="hidden mt-8 max-w-4xl mx-auto">
+                        <div class="p-10 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 border border-emerald-500/50 rounded-3xl text-center shadow-2xl backdrop-blur-sm relative overflow-hidden">
+                            <div class="absolute -top-10 -right-10 text-9xl opacity-10"><i class="fa-solid fa-trophy"></i></div>
+                            <h4 id="career-answer" class="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-6 drop-shadow-md relative z-10"></h4>
+                            <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-700 relative z-10">
+                                <p id="career-fact" class="text-slate-300 leading-relaxed text-lg italic"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="content-part-2" class="hidden space-y-8 fade-in">
+            <div class="glass-panel p-6 md:p-12 max-w-4xl mx-auto border-t-4 border-t-rose-500">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                    <h2 class="text-3xl font-black text-rose-400 uppercase drop-shadow-md"><i class="fa-solid fa-triangle-exclamation mr-3"></i>Thử Thách An Toàn</h2>
+                    <div class="text-sm font-bold bg-slate-800/80 px-6 py-3 rounded-full border border-slate-600 shadow-inner flex items-center gap-4">
+                        <span><i class="fa-solid fa-flag-checkered text-slate-400 mr-2"></i> <span id="safety-progress-text" class="text-white">1/20</span></span>
+                        <div class="w-px h-4 bg-slate-600"></div>
+                        <span><i class="fa-solid fa-check text-emerald-400 mr-2"></i> <span id="safety-live-score" class="text-emerald-400 text-lg">0</span></span>
+                    </div>
+                </div>
+                
+                <div class="w-full bg-slate-800 h-3 rounded-full mb-12 overflow-hidden shadow-inner border border-slate-700">
+                    <div id="safety-bar" class="h-full bg-gradient-to-r from-rose-500 to-orange-400 transition-all duration-700 ease-out" style="width: 5%"></div>
+                </div>
+                
+                <div id="safety-quiz-box">
+                    <div id="safety-q-text" class="text-2xl md:text-3xl font-bold mb-10 leading-relaxed min-h-[100px] text-slate-100 text-center"></div>
+                    <div id="safety-q-options" class="grid grid-cols-1 gap-5 max-w-2xl mx-auto"></div>
+                </div>
+                
+                <div id="safety-result" class="hidden text-center p-10">
+                    <div class="text-8xl mb-6 text-emerald-400 drop-shadow-[0_0_30px_rgba(52,211,153,0.5)]"><i class="fa-solid fa-shield-cat"></i></div>
+                    <h3 class="text-4xl font-black mb-4 uppercase text-white tracking-widest">HOÀN THÀNH</h3>
+                    <p id="safety-score-final" class="text-2xl mb-10 font-bold text-slate-300"></p>
+                    <button onclick="resetSafetyQuiz()" class="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 px-12 py-4 rounded-full font-black transition-all shadow-[0_0_20px_rgba(225,29,72,0.4)] hover:shadow-[0_0_30px_rgba(225,29,72,0.6)] uppercase text-white hover:scale-105"><i class="fa-solid fa-rotate-right mr-2"></i> Thử Lại</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="content-part-3" class="hidden space-y-8 fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="glass-panel p-8 lg:col-span-2 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none"></div>
+                    
+                    <h2 class="text-3xl font-black text-sky-400 uppercase mb-2"><i class="fa-solid fa-dice text-2xl mr-3"></i>Vòng Quay Gọi Tên</h2>
+                    <p class="text-slate-400 mb-8" id="student-count">Chưa tải danh sách học sinh</p>
+
+                    <div class="roulette-container w-full bg-slate-900/50 rounded-3xl border border-slate-700 shadow-inner mb-8 relative">
+                        <div class="absolute top-4 right-4 text-slate-600 opacity-20 text-6xl"><i class="fa-solid fa-crosshairs"></i></div>
+                        <div id="name-display">SẴN SÀNG</div>
+                    </div>
+
+                    <div class="flex gap-4 w-full max-w-md">
+                        <button id="btn-spin" onclick="spinRoulette()" class="flex-1 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 px-6 py-4 rounded-2xl font-black text-white shadow-lg transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed text-xl uppercase tracking-wider">
+                            <i class="fa-solid fa-play mr-2"></i> QUAY
+                        </button>
+                    </div>
+
+                    <div class="mt-8 p-6 bg-slate-800/50 rounded-2xl border border-slate-700 w-full">
+                        <label class="block text-sm font-bold text-slate-300 mb-3"><i class="fa-solid fa-file-import mr-2"></i>Nạp danh sách (.txt)</label>
+                        <input type="file" id="file-input" accept=".txt" onchange="handleFileUpload(event)" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-sky-500/20 file:text-sky-400 hover:file:bg-sky-500/30 cursor-pointer transition-all">
+                        <p class="text-xs text-slate-500 mt-3 italic">* File .txt mỗi dòng 1 tên. Nếu có thêm thông tin, ngăn cách bằng dấu gạch dọc ( | ). Dữ liệu sẽ tự động lấy phần trước dấu |.</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 flex flex-col h-full">
+                    <h3 class="text-xl font-bold text-slate-200 mb-4 border-b border-slate-700 pb-3"><i class="fa-solid fa-clipboard-list text-sky-400 mr-2"></i>Bảng Điểm Danh</h3>
+                    
+                    <div id="tracking-controls" class="hidden mb-4 p-4 bg-slate-800/80 rounded-xl border border-sky-500/30">
+                        <p class="text-sm text-slate-400 mb-2">Đang chọn:</p>
+                        <p id="current-selected-name" class="text-xl font-bold text-sky-300 mb-4 truncate"></p>
+                        <div class="flex gap-2">
+                            <button onclick="recordResult('Đúng')" class="flex-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 hover:bg-emerald-500/40 py-2 rounded-lg font-bold transition-all"><i class="fa-solid fa-check mr-1"></i> Đúng</button>
+                            <button onclick="recordResult('Sai')" class="flex-1 bg-rose-500/20 text-rose-400 border border-rose-500/50 hover:bg-rose-500/40 py-2 rounded-lg font-bold transition-all"><i class="fa-solid fa-xmark mr-1"></i> Sai</button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto pr-2">
+                        <table class="w-full text-left text-sm stat-table">
+                            <thead>
+                                <tr>
+                                    <th>Học sinh</th>
+                                    <th class="text-center w-24">Kết quả</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stat-table-body">
+                                </tbody>
+                        </table>
+                        <div id="empty-stat" class="text-center text-slate-500 py-10 italic">Chưa có lượt gọi nào</div>
+                    </div>
+                    <button onclick="clearStats()" class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-trash-can mr-2"></i>Xóa lịch sử</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="content-part-4" class="hidden space-y-8 fade-in">
+            <div class="glass-panel p-8 md:p-12 max-w-4xl mx-auto border-t-4 border-t-purple-500 text-center">
+                
+                <div id="holland-intro">
+                    <h2 class="text-3xl md:text-4xl font-black text-purple-400 uppercase drop-shadow-md mb-4"><i class="fa-solid fa-brain mr-3"></i>Khám Phá Bản Thân</h2>
+                    <p class="text-slate-300 text-lg mb-2">Lý thuyết Holland (RIASEC) chia tính cách con người thành 6 nhóm đặc trưng.</p>
+                    <p class="text-slate-400 text-sm mb-10 italic">Hãy trả lời nhanh 5 câu hỏi dưới đây để tìm ra nhóm nghề nghiệp sinh ra là dành cho em nhé!</p>
+                    <button onclick="startHollandTest()" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 px-10 py-4 rounded-full font-black text-white hover:scale-105 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] text-xl"><i class="fa-solid fa-rocket mr-2"></i> BẮT ĐẦU TEST</button>
+                </div>
+
+                <div id="holland-quiz" class="hidden">
+                    <div class="text-sm font-bold bg-slate-800/80 px-6 py-2 rounded-full inline-block mb-6 border border-slate-600 shadow-inner text-slate-300">
+                        Câu hỏi <span id="h-progress" class="text-purple-400">1/5</span>
+                    </div>
+                    <h3 id="h-question" class="text-2xl md:text-3xl font-bold mb-10 text-white min-h-[80px] flex items-center justify-center"></h3>
+                    <div id="h-options" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                        </div>
+                </div>
+
+                <div id="holland-result" class="hidden fade-in">
+                    <p class="text-slate-400 font-bold uppercase tracking-widest mb-2">Nhóm tính cách nổi trội của em là</p>
+                    <div class="text-7xl mb-4 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" id="h-res-icon"></div>
+                    <h3 class="text-4xl md:text-5xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 uppercase tracking-wider" id="h-res-title"></h3>
+                    <p class="text-slate-300 text-lg mb-8 italic px-4" id="h-res-desc"></p>
+                    
+                    <div class="bg-slate-900/80 p-6 md:p-8 rounded-2xl text-left border border-purple-500/30 shadow-inner">
+                        <h4 class="text-xl font-bold text-emerald-400 mb-4 border-b border-slate-700 pb-3"><i class="fa-solid fa-briefcase mr-2"></i>Nghề nghiệp phù hợp trong tương lai:</h4>
+                        <div id="h-res-jobs" class="flex flex-wrap gap-3">
+                            </div>
+                    </div>
+                    <button onclick="resetHollandTest()" class="mt-10 bg-slate-800 hover:bg-slate-700 border border-slate-600 px-8 py-3 rounded-full font-bold text-white transition-all hover:scale-105"><i class="fa-solid fa-rotate-right mr-2"></i>Làm lại trắc nghiệm</button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <div id="sub-quiz-modal">
+        <div class="modal-content rounded-3xl p-8 w-full max-w-lg text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 to-blue-600"></div>
+            <h3 id="sub-q-text" class="text-2xl font-bold text-white mb-8 leading-snug"></h3>
+            <div id="sub-q-options" class="space-y-4"></div>
+            <button onclick="closeModal()" class="mt-8 text-slate-500 hover:text-white text-sm font-bold uppercase transition-colors tracking-widest"><i class="fa-solid fa-xmark mr-2"></i> Đóng</button>
+        </div>
+    </div>
+
+    <script>
+        const eras = [
+            {
+                title: "TRẠM 01: CỔ ĐẠI",
+                name: "NGƯỜI ĐO DÂY",
+                icon: "🏺",
+                img: "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=1000",
+                hints: ["Đo ranh giới đất", "Sử dụng dây thừng", "Ven sông Nil", "Tính diện tích", "Làm dưới nắng", "Tổ tiên Trắc địa"],
+                subQuizzes: [
+                    { q: "Sông nào dài nhất chảy qua Ai Cập?", a: "Sông Nil", ops: ["Sông Hồng", "Sông Nil", "Sông Mê Kông"] },
+                    { q: "Người xưa xây Kim Tự Tháp bằng gì?", a: "Đá tảng", ops: ["Gạch men", "Đá tảng", "Xi măng"] },
+                    { q: "Hình nào có 3 cạnh phổ biến ở Ai Cập?", a: "Hình tam giác", ops: ["Hình tam giác", "Hình tròn", "Hình thoi"] },
+                    { q: "Sa mạc lớn nhất gần Ai Cập?", a: "Sahara", ops: ["Gobi", "Sahara", "Lời nguyền"] },
+                    { q: "Đơn vị 'Cubit' ngày xưa đo bằng gì?", a: "Cánh tay", ops: ["Cánh tay", "Bàn chân", "Sợi dây"] },
+                    { q: "Vị vua quyền lực nhất Ai Cập?", a: "Pharaoh", ops: ["Hoàng đế", "Pharaoh", "Tổng thống"] }
+                ],
+                options: ["Kiến trúc sư", "Người Đo Dây", "Nông dân", "Thợ xây mộ"],
+                fact: "Những 'người đo dây' (Harpedonaptai) chính là những nhà toán học thực hành đầu tiên. Họ dùng sợi dây có 13 nút thắt để tạo ra tam giác vuông tỉ lệ 3-4-5, giúp chia lại ruộng đất chính xác sau mỗi mùa lũ sông Nil."
+            },
+            {
+                title: "TRẠM 02: CÔNG NGHIỆP",
+                name: "CÔNG NHÂN DÂY CHUYỀN",
+                icon: "⚙️",
+                img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1000",
+                hints: ["Lắp ráp chi tiết", "Tiếng máy nổ lớn", "Băng chuyền liên tục", "Kỷ luật thời gian", "Lặp lại thao tác", "Sản xuất hàng loạt"],
+                subQuizzes: [
+                    { q: "Máy hơi nước phát triển ở đâu?", a: "Nhà máy", ops: ["Nhà máy", "Ngoài đồng", "Trên rừng"] },
+                    { q: "Thứ gì vận chuyển hàng trong nhà máy?", a: "Băng chuyền", ops: ["Xe đạp", "Băng chuyền", "Thuyền thúng"] },
+                    { q: "Tiếng động đặc trưng của thời kỳ này?", a: "Máy móc", ops: ["Chim hót", "Máy móc", "Sóng biển"] },
+                    { q: "Làm việc theo 'ca' nghĩa là gì?", a: "Chia giờ làm", ops: ["Chia giờ làm", "Vừa làm vừa hát", "Tùy thích"] },
+                    { q: "Trang phục bảo vệ công nhân?", a: "Đồ bảo hộ", ops: ["Đồ vest", "Đồ bảo hộ", "Đồ bơi"] },
+                    { q: "Nguyên liệu chính CMCN lần 1?", a: "Than đá", ops: ["Nhựa", "Than đá", "Gỗ"] }
+                ],
+                options: ["Thợ rèn", "Giám đốc", "Công nhân dây chuyền", "Kỹ sư"],
+                fact: "Henry Ford là người đưa dây chuyền lắp ráp vào sản xuất ô tô năm 1913, giúp giảm thời gian xuất xưởng một chiếc xe từ 12 giờ xuống còn 93 phút! Tại Việt Nam, các khu công nghiệp hiện đại ngày nay là 'hậu duệ' của mô hình này."
+            },
+            {
+                title: "TRẠM 03: GIẢI TRÍ SỐ",
+                name: "STREAMER",
+                icon: "📺",
+                img: "https://images.unsplash.com/photo-1598550874175-4d0fe4a2c90b?auto=format&fit=crop&w=1000",
+                hints: ["Nói chuyện qua Webcam", "Chơi game trực tiếp", "Tương tác qua Chat", "Phòng có đèn LED", "Thu nhập từ Donate", "Làm việc đêm khuya"],
+                subQuizzes: [
+                    { q: "Nền tảng Livestream lớn nhất?", a: "YouTube/Twitch", ops: ["YouTube/Twitch", "Zalo", "VTV1"] },
+                    { q: "Thứ giúp thu âm rõ nét?", a: "Microphone", ops: ["Microphone", "Cái loa", "Tai nghe"] },
+                    { q: "Đèn vòng tròn dùng để làm gì?", a: "Chiếu sáng mặt", ops: ["Đuổi muỗi", "Chiếu sáng mặt", "Làm mát"] },
+                    { q: "Khán giả tặng tiền gọi là gì?", a: "Donate", ops: ["Mua hàng", "Donate", "Thuế"] },
+                    { q: "Kỹ năng quan trọng nhất?", a: "Giao tiếp lôi cuốn", ops: ["Ngủ giỏi", "Giao tiếp lôi cuốn", "Vẽ đẹp"] },
+                    { q: "Phụ kiện game thủ thường có đèn gì?", a: "Đèn RGB", ops: ["Đèn pin", "Đèn RGB", "Đèn dầu"] }
+                ],
+                options: ["Ca sĩ", "Streamer", "Lập trình viên", "Diễn viên"],
+                fact: "Độ Mixi (Phùng Thanh Độ) là một trong những Streamer thành công nhất Việt Nam. Anh từng lập kỷ lục với hơn 240,000 người xem trực tiếp cùng lúc, biến nghề streamer từ 'vô bổ' trong mắt nhiều người thành một ngành công nghiệp giải mã triệu đô."
+            },
+            {
+                title: "TRẠM 04: VẬN CHUYỂN",
+                name: "NHÂN VIÊN GIAO HÀNG",
+                icon: "📦",
+                img: "https://images.unsplash.com/photo-1595246140625-573b715d11dc?auto=format&fit=crop&w=1000",
+                hints: ["Thùng hàng phía sau", "Di chuyển trên phố", "Ứng dụng định vị", "Đội mũ bảo hiểm", "Khách hàng nhận hàng", "Làm việc dưới mưa nắng"],
+                subQuizzes: [
+                    { q: "Ứng dụng tìm đường phổ biến?", a: "Google Maps", ops: ["Facebook", "Google Maps", "Calculator"] },
+                    { q: "Nghề này di chuyển bằng gì?", a: "Xe máy", ops: ["Máy bay", "Xe máy", "Thuyền"] },
+                    { q: "Khách trả tiền khi nhận hàng là gì?", a: "Ship COD", ops: ["Ship COD", "Free Ship", "Trả góp"] },
+                    { q: "Vật dụng bảo vệ đầu?", a: "Mũ bảo hiểm", ops: ["Mũ len", "Mũ bảo hiểm", "Vương miện"] },
+                    { q: "Hàng thường đựng trong gì?", a: "Thùng carton", ops: ["Túi vải", "Thùng carton", "Lồng chim"] },
+                    { q: "Tên gọi vui của nghề này?", a: "Shipper", ops: ["Captain", "Shipper", "Driver"] }
+                ],
+                options: ["Cảnh sát", "Shipper", "Bưu tá", "Lái xe buýt"],
+                fact: "Nghề giao hàng đã có từ thời cổ đại qua hệ thống bưu liên (ngựa trạm). Tại Việt Nam, hình ảnh những 'Shipper' công nghệ trên chiếc xe máy đã trở thành 'mạch máu' không thể thiếu của nền kinh tế số hiện nay."
+            },
+            {
+                title: "TRẠM 05: DỊCH VỤ",
+                name: "CHỦ QUÁN CÀ PHÊ",
+                icon: "☕",
+                img: "https://images.unsplash.com/photo-1501339817302-4448f915c42f?auto=format&fit=crop&w=1000",
+                hints: ["Máy pha Espresso", "Hương thơm nồng nàn", "Nghệ thuật Latte", "Phục vụ khách hàng", "Âm nhạc nhẹ nhàng", "Thức uống tỉnh táo"],
+                subQuizzes: [
+                    { q: "Hạt gì dùng để pha cà phê?", a: "Hạt Robusta", ops: ["Hạt Robusta", "Hạt hướng dương", "Hạt dẻ"] },
+                    { q: "Người pha chế gọi là gì?", a: "Barista", ops: ["Chef", "Barista", "Bartender"] },
+                    { q: "Thứ dùng để tạo bọt mịn?", a: "Sữa tươi", ops: ["Nước lọc", "Sữa tươi", "Dầu ăn"] },
+                    { q: "Máy ép hạt lấy nước gọi là?", a: "Máy pha cà phê", ops: ["Máy xay", "Máy pha cà phê", "Lò vi sóng"] },
+                    { q: "Tỉnh nổi tiếng về cà phê?", a: "Đắk Lắk", ops: ["Hà Nội", "Đắk Lắk", "An Giang"] },
+                    { q: "Cà phê giúp bạn cảm thấy?", a: "Tỉnh táo", ops: ["Buồn ngủ", "Tỉnh táo", "Đói bụng"] }
+                ],
+                options: ["Đầu bếp", "Chủ quán cà phê", "Người bán trà", "Kinh doanh"],
+                fact: "Đặng Lê Nguyên Vũ – 'Vua Cà phê' Việt Nam, người sáng lập Trung Nguyên. Ông đã nâng tầm cà phê Việt từ một nông sản thô thành một thương hiệu toàn cầu, với triết lý coi cà phê là 'năng lượng cho não sáng tạo'."
+            },
+            {
+                title: "TRẠM 06: ẨM THỰC SỐ",
+                name: "FOOD REVIEWER",
+                icon: "🍜",
+                img: "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=1000",
+                hints: ["Chụp ảnh đồ ăn", "Đánh giá hương vị", "Quay video ngắn", "Chia sẻ trải nghiệm", "Đến nhiều nhà hàng", "Nhiều người theo dõi"],
+                subQuizzes: [
+                    { q: "Việc đầu tiên khi món ăn ra?", a: "Chụp ảnh", ops: ["Ăn luôn", "Chụp ảnh", "Rửa bát"] },
+                    { q: "Nền tảng video ngắn hot nhất?", a: "TikTok", ops: ["Excel", "TikTok", "Shopee"] },
+                    { q: "Thường cho điểm bằng gì?", a: "Số sao", ops: ["Số sao", "Cái tát", "Lá thư"] },
+                    { q: "Vị 'Cay' thường do gì?", a: "Ớt", ops: ["Đường", "Ớt", "Muối"] },
+                    { q: "Từ khen đồ ăn ngon hot gần đây?", a: "Mlem mlem", ops: ["Tệ quá", "Mlem mlem", "Bình thường"] },
+                    { q: "Vật dụng quay hình luôn mang theo?", a: "Gimbal", ops: ["Thước dây", "Gimbal", "Cái ô"] }
+                ],
+                options: ["Đầu bếp", "Food Reviewer", "Nhiếp ảnh gia", "Hướng dẫn viên"],
+                fact: "Nghề này bắt đầu từ các nhà phê bình ẩm thực trên báo giấy thời Pháp. Ngày nay, các 'Food Reviewer' Việt Nam như Ninh Titô hay Schannel đã biến việc thưởng thức món ăn thành một nghệ thuật kể chuyện hình ảnh đầy lôi cuốn."
+            },
+            {
+                title: "TRẠM 07: TÀI CHÍNH",
+                name: "KẾ TOÁN",
+                icon: "📊",
+                img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1000",
+                hints: ["Bảng tính Excel", "Cân đối thu chi", "Hóa đơn chứng từ", "Làm việc với con số", "Báo cáo tài chính", "Sự chính xác tuyệt đối"],
+                subQuizzes: [
+                    { q: "Phần mềm bảng tính quốc dân?", a: "Excel", ops: ["Word", "Excel", "Photoshop"] },
+                    { q: "Vật dụng tính nhanh cầm tay?", a: "Máy tính bỏ túi", ops: ["Bút chì", "Máy tính bỏ túi", "Compa"] },
+                    { q: "Phép tính cơ bản nhất?", a: "Cộng, trừ", ops: ["Cộng, trừ", "Tích phân", "Khai căn"] },
+                    { q: "Giấy tờ xác nhận mua bán?", a: "Hóa đơn", ops: ["Vé số", "Hóa đơn", "Sổ hộ khẩu"] },
+                    { q: "Tháng cuối năm thường như thế nào?", a: "Bận rộn", ops: ["Rảnh rỗi", "Bận rộn", "Đi chơi"] },
+                    { q: "Nghĩa vụ nộp cho nhà nước?", a: "Thuế", ops: ["Quà cáp", "Thuế", "Lời chào"] }
+                ],
+                options: ["Kế toán", "Ngân hàng", "Thư ký", "Thủ quỹ"],
+                fact: "Luca Pacioli (người Ý) được coi là cha đẻ của kế toán hiện đại. Tại Việt Nam, Lương Hữu Khánh là một vị quan thời Lê được coi là ông tổ nghề kế toán – người đã có công lớn trong việc minh bạch hóa ngân khố quốc gia bằng các con số."
+            },
+            {
+                title: "TRẠM 08: DU LỊCH",
+                name: "HƯỚNG DẪN VIÊN",
+                icon: "🚩",
+                img: "https://images.unsplash.com/photo-1539635278303-d4002c07eae3?auto=format&fit=crop&w=1000",
+                hints: ["Cầm cờ dẫn đoàn", "Kể chuyện lịch sử", "Am hiểu vùng đất", "Di chuyển liên tục", "Giao tiếp tự tin", "Sử dụng ngoại ngữ"],
+                subQuizzes: [
+                    { q: "Vật giúp đoàn khách nhận ra HDV?", a: "Lá cờ nhỏ", ops: ["Cái bát", "Lá cờ nhỏ", "Cái gối"] },
+                    { q: "Nơi làm việc chủ yếu?", a: "Điểm du lịch", ops: ["Trong hầm", "Điểm du lịch", "Trên giường"] },
+                    { q: "Khách từ nước ngoài gọi là gì?", a: "Khách quốc tế", ops: ["Khách quen", "Khách quốc tế", "Khách láng giềng"] },
+                    { q: "Nơi đón khách đi máy bay?", a: "Sân bay", ops: ["Bến phà", "Sân bay", "Trạm xá"] },
+                    { q: "Kỹ năng cần thiết nhất?", a: "Thuyết trình", ops: ["Nấu ăn", "Thuyết trình", "Ngủ gật"] },
+                    { q: "Di tích nổi tiếng ở Hà Nội?", a: "Văn Miếu", ops: ["Văn Miếu", "Đèo Hải Vân", "Chợ Bến Thành"] }
+                ],
+                options: ["Phi công", "Hướng dẫn viên", "Tài xế", "Nhà sử học"],
+                fact: "Thomas Cook là người tổ chức chuyến du lịch có hướng dẫn đầu tiên trên thế giới vào năm 1841. Tại Việt Nam, hướng dẫn viên du lịch không chỉ là người dẫn đường mà còn được ví như một 'đại sứ văn hóa', giới thiệu nét đẹp hình chữ S tới bạn bè năm châu."
+            },
+            {
+                title: "TRẠM 09: THỂ THAO",
+                name: "HUẤN LUYỆN VIÊN GYM",
+                icon: "🏋️",
+                img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1000",
+                hints: ["Cơ bắp săn chắc", "Đếm nhịp bài tập", "Hướng dẫn kỹ thuật", "Chế độ Eat Clean", "Phòng tập đầy tạ", "Nâng cao sức khỏe"],
+                subQuizzes: [
+                    { q: "Thứ dùng nâng bằng tay để tập?", a: "Quả tạ", ops: ["Quả tạ", "Quả bóng", "Quả xoài"] },
+                    { q: "Động tác ngồi xổm tập mông?", a: "Squat", ops: ["Plank", "Squat", "Hít đất"] },
+                    { q: "Chất giúp phát triển cơ bắp?", a: "Protein", ops: ["Đường", "Chất béo", "Protein"] },
+                    { q: "Tên gọi viết tắt của nghề này?", a: "PT", ops: ["IT", "PT", "DJ"] },
+                    { q: "Việc cần làm trước khi tập?", a: "Khởi động", ops: ["Đi ngủ", "Khởi động", "Ăn thật no"] },
+                    { q: "Máy giúp chạy tại chỗ?", a: "Máy chạy bộ", ops: ["Máy chạy bộ", "Xe đạp điện", "Thang máy"] }
+                ],
+                options: ["Vận động viên", "HLV Gym", "Bác sĩ", "Người mẫu"],
+                fact: "Lý Đức là vận động viên thể hình nổi tiếng nhất Việt Nam, từng 7 lần vô địch châu Á. Anh đã truyền cảm hứng mạnh mẽ cho phong trào tập luyện thể hình, tạo nền móng cho nghề huấn luyện viên cá nhân (PT) chuyên nghiệp phát triển mạnh mẽ như hiện nay."
+            },
+            {
+                title: "TRẠM 10: Y TẾ",
+                name: "DƯỢC SĨ",
+                icon: "💊",
+                img: "https://images.unsplash.com/photo-1587854692152-cbe660dbbb88?auto=format&fit=crop&w=1000",
+                hints: ["Áo Blouse trắng", "Tủ thuốc đầy ngăn", "Tư vấn liều dùng", "Làm việc tại hiệu thuốc", "Chính xác thành phần", "Chăm sóc sức khỏe"],
+                subQuizzes: [
+                    { q: "Áo đặc trưng ngành y màu gì?", a: "Màu trắng", ops: ["Màu xanh", "Màu đen", "Màu trắng"] },
+                    { q: "Dụng cụ đo nhiệt độ?", a: "Nhiệt kế", ops: ["Cái cân", "Nhiệt kế", "Thước kẻ"] },
+                    { q: "Thuốc giảm đau phổ biến?", a: "Paracetamol", ops: ["Vitamin C", "Paracetamol", "Siro ho"] },
+                    { q: "Cần có gì từ bác sĩ khi mua thuốc?", a: "Đơn thuốc", ops: ["Lời cảm ơn", "Đơn thuốc", "Tiền lẻ"] },
+                    { q: "Nơi làm việc chủ yếu?", a: "Nhà thuốc", ops: ["Nhà kho", "Nhà thuốc", "Nhà rông"] },
+                    { q: "Ký hiệu hình chữ thập màu gì?", a: "Màu đỏ", ops: ["Màu vàng", "Màu đỏ", "Màu tím"] }
+                ],
+                options: ["Y tá", "Bác sĩ", "Dược sĩ", "Nha sĩ"],
+                fact: "Tuệ Tĩnh (Nguyễn Bá Tĩnh) được tôn là 'Ông tổ ngành Dược Việt Nam'. Với phương châm 'Nam dược trị Nam nhân' (Thuốc Nam trị người Nam), ông đã để lại kho tàng kiến thức y học vô giá về các cây thuốc quý từ chính thiên nhiên nước nhà."
+            },
+            {
+                title: "TRẠM 11: NGÂN HÀNG",
+                name: "NHÂN VIÊN NGÂN HÀNG",
+                icon: "🏦",
+                img: "https://images.unsplash.com/photo-1501167786227-4cba60f6d58f?auto=format&fit=crop&w=1000",
+                hints: ["Đồng phục chỉn chu", "Giao dịch tiền tệ", "Thẻ ATM, tín dụng", "Ngồi quầy giao dịch", "Bảo mật thông tin", "Cho vay và tiết kiệm"],
+                subQuizzes: [
+                    { q: "Thứ dùng rút tiền tự động?", a: "Cây ATM", ops: ["Cây ATM", "Cây xăng", "Cây đa"] },
+                    { q: "Mã số bí mật dùng thẻ?", a: "Mã PIN", ops: ["Mã PIN", "Số điện thoại", "Ngày sinh"] },
+                    { q: "Loại tiền ngân hàng giữ hộ?", a: "Tiền tiết kiệm", ops: ["Tiền lẻ", "Tiền tiết kiệm", "Tiền mừng tuổi"] },
+                    { q: "Thứ nhận được khi gửi tiền?", a: "Lãi suất", ops: ["Sổ đỏ", "Lãi suất", "Kẹo cao su"] },
+                    { q: "Quản lý tài khoản trên điện thoại?", a: "Mobile Banking", ops: ["Facebook", "Mobile Banking", "Game"] },
+                    { q: "Tính cách quan trọng nhất?", a: "Trung thực", ops: ["Ham chơi", "Trung thực", "Nóng nảy"] }
+                ],
+                options: ["Bảo vệ", "Giao dịch viên", "Giám đốc", "Kế toán"],
+                fact: "Chiếc thẻ ATM đầu tiên được ra mắt vào năm 1967 tại London. Tại Việt Nam, ngân hàng không chỉ là nơi gửi tiền mà còn là trung tâm dịch vụ tài chính, nơi các nhân viên giao dịch phải có kỹ năng giao tiếp cực kỳ khéo léo và tính cẩn trọng tuyệt đối."
+            },
+            {
+                title: "TRẠM 12: LÀM ĐẸP",
+                name: "THỢ LÀM TÓC",
+                icon: "✂️",
+                img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000",
+                hints: ["Kéo và lược", "Máy sấy công suất lớn", "Thay đổi diện mạo", "Gương lớn bao quanh", "Mùi thuốc nhuộm", "Tư vấn kiểu tóc"],
+                subQuizzes: [
+                    { q: "Dụng cụ chính để cắt?", a: "Kéo", ops: ["Dao phay", "Kéo", "Cái búa"] },
+                    { q: "Thiết bị giúp tóc nhanh khô?", a: "Máy sấy", ops: ["Máy sấy", "Quạt trần", "Lò sưởi"] },
+                    { q: "Chất thay đổi màu tóc?", a: "Thuốc nhuộm", ops: ["Sơn tường", "Thuốc nhuộm", "Mực viết"] },
+                    { q: "Kiểu tóc ngắn hot cho nam?", a: "Undercut", ops: ["Undercut", "Tóc dài", "Tóc bím"] },
+                    { q: "Vật dùng gỡ rối tóc?", a: "Cái lược", ops: ["Cái đũa", "Cái lược", "Cái thìa"] },
+                    { q: "Tên gọi tiếng Anh chuyên nghiệp?", a: "Hair Stylist", ops: ["Makeup Artist", "Hair Stylist", "Designer"] }
+                ],
+                options: ["Thợ làm tóc", "Thợ trang điểm", "Người mẫu", "Diễn viên"],
+                fact: "Kim (Thế giới tóc) là một trong những nhà tạo mẫu tóc nổi tiếng nhất Việt Nam. Nghề này đòi hỏi sự kiên trì và đôi bàn tay tài hoa để 'điêu khắc' trên mái tóc, biến mái tóc thành một tác phẩm nghệ thuật phù hợp với gương mặt mỗi người."
+            },
+            {
+                title: "TRẠM 13: NGHỆ THUẬT",
+                name: "NHIẾP ẢNH GIA",
+                icon: "📷",
+                img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1000",
+                hints: ["Máy ảnh cơ DSLR", "Bắt trọn khoảnh khắc", "Điều chỉnh ánh sáng", "Góc chụp nghệ thuật", "Hậu kỳ chỉnh sửa", "Thấu kính chuyên dụng"],
+                subQuizzes: [
+                    { q: "Thứ quan trọng nhất để chụp?", a: "Máy ảnh", ops: ["Cái chổi", "Máy ảnh", "Cái gương"] },
+                    { q: "Việc làm để ảnh đẹp hơn?", a: "Chỉnh sửa ảnh", ops: ["Xóa đi", "Chỉnh sửa ảnh", "Đem đốt"] },
+                    { q: "Phần mềm chỉnh chuyên nghiệp?", a: "Photoshop", ops: ["Word", "Photoshop", "PowerPoint"] },
+                    { q: "Thứ giúp máy đứng vững?", a: "Tripod", ops: ["Tripod", "Cái ghế", "Đôi tay"] },
+                    { q: "Chụp chính mình gọi là gì?", a: "Selfie", ops: ["Selfie", "Livestream", "Review"] },
+                    { q: "Nút bấm trên máy dùng để?", a: "Chụp", ops: ["Tắt máy", "Chụp", "Tăng âm"] }
+                ],
+                options: ["Họa sĩ", "Nhiếp ảnh gia", "Người mẫu", "Quay phim"],
+                fact: "Nick Út là nhiếp ảnh gia người Việt nổi tiếng toàn cầu với bức ảnh 'Em bé Napalm', tác phẩm đã thay đổi cái nhìn của cả thế giới về chiến tranh Việt Nam và giúp ông đạt giải Pulitzer danh giá. Ông đã chứng minh sức mạnh của một tấm ảnh có thể xoay chuyển lịch sử."
+            },
+            {
+                title: "TRẠM 14: CÔNG NGHỆ",
+                name: "LẬP TRÌNH VIÊN",
+                icon: "💻",
+                img: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1000",
+                hints: ["Gõ Code liên tục", "Màn hình đen chữ xanh", "Xử lý lỗi Fix Bug", "Xây dựng Website", "Logic cực tốt", "Làm việc với máy tính"],
+                subQuizzes: [
+                    { q: "Ngôn ngữ phổ biến hiện nay?", a: "Python", ops: ["Tiếng Anh", "Python", "Tiếng Latinh"] },
+                    { q: "Lỗi phần mềm gọi là gì?", a: "Bug", ops: ["Bug", "Bird", "Cat"] },
+                    { q: "Thứ dùng nhập dữ liệu?", a: "Bàn phím", ops: ["Chuột", "Bàn phím", "Màn hình"] },
+                    { q: "Trang tìm kiếm thông tin?", a: "Google", ops: ["Google", "Facebook", "Shopee"] },
+                    { q: "Hệ điều hành cho PC?", a: "Windows", ops: ["Android", "iOS", "Windows"] },
+                    { q: "Tên gọi khác của nghề này?", a: "Developer", ops: ["Designer", "Developer", "Hacker"] }
+                ],
+                options: ["Kỹ sư điện", "Lập trình viên", "Sửa máy tính", "Toán học"],
+                fact: "Nguyễn Hà Đông là lập trình viên người Việt gây chấn động toàn cầu với trò chơi Flappy Bird năm 2014. Anh đã chứng minh rằng với sự sáng tạo và kỹ năng lập trình, một người trẻ Việt Nam có thể tạo ra sản phẩm đứng đầu bảng xếp hạng thế giới ngay từ phòng ngủ của mình."
+            },
+            {
+                title: "TRẠM 15: TƯƠNG LAI",
+                name: "KỸ SƯ PROMPT",
+                icon: "🤖",
+                img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1000",
+                hints: ["Giao tiếp với AI", "Dùng ngôn ngữ tự nhiên", "Đặt câu hỏi thông minh", "Điều khiển Robot", "Làm việc với dữ liệu", "Sáng tạo nội dung"],
+                subQuizzes: [
+                    { q: "ChatGPT là công nghệ gì?", a: "AI", ops: ["Robot hút bụi", "AI", "Máy tính"] },
+                    { q: "Lệnh gửi cho AI gọi là gì?", a: "Prompt", ops: ["Email", "Prompt", "Tin rác"] },
+                    { q: "AI có thể giúp gì?", a: "Giải đáp mọi thứ", ops: ["Ăn cơm hộ", "Giải đáp mọi thứ", "Đi ngủ hộ"] },
+                    { q: "Câu lệnh AI cần phải?", a: "Rõ ràng", ops: ["Ngắn ngủn", "Rõ ràng", "Viết sai"] },
+                    { q: "Công cụ AI vẽ tranh?", a: "Midjourney", ops: ["Paint", "Midjourney", "Bút chì"] },
+                    { q: "AI chưa thể thay thế điều gì?", a: "Cảm xúc", ops: ["Tính toán", "Cảm xúc", "Lưu trữ"] }
+                ],
+                options: ["Lập trình viên", "Kỹ sư Prompt", "Người máy", "Game thủ"],
+                fact: "Đây là một trong những nghề nghiệp 'hot' nhất thế kỷ 21. Kỹ sư Prompt không cần giỏi viết code bằng ngôn ngữ máy tính, mà cần giỏi 'ngôn ngữ loài người' để ra lệnh cho AI (như ChatGPT) tạo ra kết quả tối ưu nhất. Một kỹ sư Prompt giỏi tại Việt Nam hiện có mức lương rất cao."
+            }
+        ];
+
+        // Data An Toàn (Mới cập nhật 20 câu)
+        const safetyQuestions = [
+            { q: "Khi thấy biển báo hình tam giác màu vàng có hình tia sét, đó là cảnh báo gì?", a: "Nguy hiểm về điện", ops: ["Nguy hiểm về điện", "Khu vực sạc điện thoại", "Lối thoát hiểm"] },
+            { q: "Đâu là trang bị bảo hộ bắt buộc khi vào công trường xây dựng?", a: "Mũ bảo hộ", ops: ["Mũ bảo hộ", "Mũ lưỡi trai thời trang", "Tai nghe chống ồn"] },
+            { q: "Nếu xảy ra cháy do chập điện, bạn TUYỆT ĐỐI không được dùng gì để dập lửa?", a: "Nước", ops: ["Bình chữa cháy khí CO2", "Cát", "Nước"] },
+            { q: "Khoảng cách mắt đến màn hình máy tính tốt nhất để bảo vệ thị lực là?", a: "50 - 70 cm", ops: ["20 - 30 cm", "50 - 70 cm", "Trên 1 mét"] },
+            { q: "Tư thế nâng vật nặng đúng để bảo vệ cột sống là gì?", a: "Uốn cong đầu gối, lưng giữ thẳng", ops: ["Cúi gập lưng, chân giữ thẳng", "Uốn cong đầu gối, lưng giữ thẳng", "Nghiêng người sang một bên"] },
+            { q: "Khi hóa chất văng vào mắt, việc đầu tiên cần làm là gì?", a: "Rửa mắt dưới vòi nước sạch ít nhất 15 phút", ops: ["Dùng tay dụi mắt thật mạnh", "Rửa mắt dưới vòi nước sạch ít nhất 15 phút", "Nhỏ thuốc nhỏ mắt ngay lập tức"] },
+            { q: "Trước khi sửa chữa hoặc vệ sinh thiết bị điện, thao tác quan trọng nhất là?", a: "Ngắt nguồn điện (rút phích cắm/ngắt cầu dao)", ops: ["Đeo găng tay vải", "Ngắt nguồn điện (rút phích cắm/ngắt cầu dao)", "Dùng bút thử điện kiểm tra"] },
+            { q: "Biển báo hình tròn, nền xanh lam, hình vẽ màu trắng là loại biển báo gì?", a: "Biển báo bắt buộc thực hiện", ops: ["Biển báo cấm", "Biển báo bắt buộc thực hiện", "Biển báo chỉ dẫn"] },
+            { q: "Trong xưởng thực hành, việc để tóc dài không gọn gàng có thể gây nguy hiểm gì?", a: "Bị cuốn vào máy móc đang quay", ops: ["Gây nóng bức", "Bị bụi bẩn bám vào", "Bị cuốn vào máy móc đang quay"] },
+            { q: "Khi làm việc với các thiết bị tỏa nhiệt cao, ta nên sử dụng loại găng tay nào?", a: "Găng tay chịu nhiệt", ops: ["Găng tay cao su mỏng", "Găng tay chịu nhiệt", "Găng tay len"] },
+            { q: "Mục đích chính của việc huấn luyện an toàn lao động là gì?", a: "Ngăn ngừa tai nạn và bệnh nghề nghiệp", ops: ["Để đối phó với kiểm tra", "Ngăn ngừa tai nạn và bệnh nghề nghiệp", "Để tăng lương cho nhân viên"] },
+            { q: "Khi nghe tín hiệu báo cháy, hành động nào sau đây là ĐÚNG?", a: "Di chuyển bình tĩnh theo lối thoát hiểm cầu thang bộ", ops: ["Sử dụng thang máy để thoát ra nhanh nhất", "Di chuyển bình tĩnh theo lối thoát hiểm cầu thang bộ", "Quay lại lấy đồ đạc cá nhân"] },
+            { q: "Ánh sáng tại nơi làm việc/học tập quá yếu sẽ gây ra tác hại gì?", a: "Cận thị và mỏi mắt", ops: ["Cận thị và mỏi mắt", "Giúp tập trung hơn", "Tiết kiệm điện năng"] },
+            { q: "Biển báo hình tròn, gạch chéo đỏ trên nền trắng là loại biển báo gì?", a: "Biển báo cấm", ops: ["Biển báo nguy hiểm", "Biển báo hướng dẫn", "Biển báo cấm"] },
+            { q: "Tại sao không nên vừa sạc điện thoại vừa sử dụng để chơi game/xem phim?", a: "Nguy cơ cháy nổ pin và rò rỉ điện", ops: ["Làm điện thoại nhanh hết pin", "Nguy cơ cháy nổ pin và rò rỉ điện", "Làm màn hình bị mờ"] },
+            { q: "Để giảm căng thẳng khi ngồi làm việc lâu với máy tính, bạn nên áp dụng quy tắc nào?", a: "Quy tắc 20-20-20 (mỗi 20 phút nhìn xa 20 feet trong 20 giây)", ops: ["Quy tắc 20-20-20 (mỗi 20 phút nhìn xa 20 feet trong 20 giây)", "Ngồi liên tục trong 2 tiếng rồi nghỉ", "Uống nước liên tục"] },
+            { q: "Khi phát hiện dây điện bị hở, bạn nên làm gì?", a: "Tránh xa, cảnh báo mọi người và báo người có chuyên môn", ops: ["Dùng băng dính thường dán lại", "Tránh xa, cảnh báo mọi người và báo người có chuyên môn", "Dùng tay không kéo dây ra chỗ khác"] },
+            { q: "Loại bình chữa cháy nào thường dùng để dập tắt đám cháy thiết bị điện tử?", a: "Bình khí CO2", ops: ["Bình khí CO2", "Xô nước sạch", "Bình chữa cháy dạng bọt (Foam)"] },
+            { q: "Việc đeo tai nghe âm lượng quá lớn trong thời gian dài gây hại gì?", a: "Giảm thính lực (điếc nghề nghiệp)", ops: ["Tăng khả năng tập trung", "Giảm thính lực (điếc nghề nghiệp)", "Làm sạch tai"] },
+            { q: "An toàn lao động là trách nhiệm của ai?", a: "Tất cả mọi người", ops: ["Riêng quản lý cấp cao", "Riêng nhân viên bảo vệ", "Tất cả mọi người"] }
+        ];
+
+        // --- ĐIỀU HƯỚNG TAB ---
+        function switchPart(partNum) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${partNum}`).classList.add('active');
+            
+            document.getElementById('content-part-1').classList.add('hidden');
+            document.getElementById('content-part-2').classList.add('hidden');
+            document.getElementById('content-part-3').classList.add('hidden');
+            document.getElementById('content-part-4').classList.add('hidden');
+            
+            document.getElementById(`content-part-${partNum}`).classList.remove('hidden');
+
+            if(partNum === 2 && document.getElementById('safety-q-options').innerHTML === '') loadSafetyQuestion();
+        }
+
+        // --- LOGIC PHẦN 1: NGHỀ NGHIỆP ---
+        let currentEraIdx = -1; let revealedCount = 0; let pendingPieceIdx = -1;
+
+        function initEraButtons() {
+            const container = document.getElementById('era-buttons');
+            eras.forEach((era, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-era px-6 py-3 rounded-2xl font-bold transition-all shadow-sm whitespace-nowrap text-sm';
+                btn.innerHTML = `<span class="text-xl mr-2">${era.icon}</span> ${era.title}`;
+                btn.onclick = () => loadEra(idx, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function loadEra(idx, btn) {
+            document.querySelectorAll('.btn-era').forEach(b => b.classList.remove('active-era'));
+            btn.classList.add('active-era');
+            currentEraIdx = idx; revealedCount = 0;
+            const era = eras[idx];
+            
+            document.getElementById('game-board').classList.remove('hidden');
+            document.getElementById('quiz-area').classList.add('hidden');
+            document.getElementById('answer-box').classList.add('hidden');
+            
+            const imgEl = document.getElementById('career-img');
+            imgEl.style.backgroundImage = `url('${era.img}')`;
+            imgEl.style.filter = 'blur(15px) grayscale(100%)';
+
+            const grid = document.getElementById('puzzle-grid'); grid.innerHTML = '';
+            document.querySelectorAll('.hint-text').forEach(h => h.remove());
+            
+            for(let i=0; i<6; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece'; piece.id = `piece-${i}`; 
+                piece.innerHTML = `<span class="opacity-50">${i + 1}</span>`;
+                piece.onclick = () => openSubQuiz(i); grid.appendChild(piece);
+            }
+        }
+
+        function openSubQuiz(pieceIdx) {
+            playSound('tick');
+            pendingPieceIdx = pieceIdx;
+            const quiz = eras[currentEraIdx].subQuizzes[pieceIdx];
+            document.getElementById('sub-q-text').innerText = quiz.q;
+            
+            if(window.katex && quiz.q.includes('$')) {
+                const parts = quiz.q.split('$');
+                let html = '';
+                for(let i=0; i<parts.length; i++){
+                    if(i%2!==0) html += window.katex.renderToString(parts[i], {throwOnError: false});
+                    else html += parts[i];
+                }
+                document.getElementById('sub-q-text').innerHTML = html;
+            }
+
+            const opsContainer = document.getElementById('sub-q-options'); opsContainer.innerHTML = '';
+            quiz.ops.forEach(op => {
+                const btn = document.createElement('button'); btn.className = 'option-btn';
+                btn.innerHTML = `<span>${op}</span> <i class="fa-solid fa-chevron-right opacity-0 transition-opacity"></i>`;
+                btn.onmouseover = () => btn.querySelector('i').classList.remove('opacity-0');
+                btn.onmouseout = () => btn.querySelector('i').classList.add('opacity-0');
+                btn.onclick = () => checkSubAnswer(op, btn, quiz.a);
+                opsContainer.appendChild(btn);
+            });
+            document.getElementById('sub-quiz-modal').style.display = 'flex';
+        }
+
+        function checkSubAnswer(choice, btn, correct) {
+            if(choice === correct) {
+                playSound('correct');
+                closeModal();
+                document.getElementById(`piece-${pendingPieceIdx}`).classList.add('piece-hidden');
+                
+                const hint = document.createElement('div'); hint.className = 'hint-text';
+                hint.innerText = eras[currentEraIdx].hints[pendingPieceIdx];
+                const col = pendingPieceIdx % 3; const row = Math.floor(pendingPieceIdx / 3);
+                hint.style.left = `calc(${col * 33.33}% + 10px)`; hint.style.top = `calc(${row * 50}% + 10px)`;
+                document.querySelector('.puzzle-container-wrapper').appendChild(hint);
+                
+                revealedCount++;
+                document.getElementById('career-img').style.filter = `blur(${15 - revealedCount*2.5}px) grayscale(${100 - revealedCount*16}%)`;
+                
+                if(revealedCount === 6) setTimeout(showFinalQuiz, 800);
+            } else { 
+                playSound('wrong');
+                btn.classList.add('shake', 'btn-wrong'); 
+                setTimeout(() => btn.classList.remove('shake', 'btn-wrong'), 500); 
+            }
+        }
+
+        function showFinalQuiz() {
+            playSound('win');
+            const era = eras[currentEraIdx];
+            const area = document.getElementById('quiz-area');
+            const grid = document.getElementById('options-grid'); grid.innerHTML = '';
+            
+            era.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn justify-center text-center text-xl py-6 hover:scale-105';
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    if(opt.toUpperCase() === era.name.toUpperCase()) {
+                        playSound('win');
+                        area.classList.add('hidden');
+                        document.getElementById('answer-box').classList.remove('hidden');
+                        document.getElementById('career-answer').innerText = era.name;
+                        document.getElementById('career-fact').innerText = era.fact;
+                        document.querySelectorAll('.hint-text').forEach(h => h.style.display='none');
+                    } else { playSound('wrong'); btn.classList.add('shake', 'btn-wrong'); setTimeout(()=>btn.classList.remove('shake', 'btn-wrong'),500); }
+                };
+                grid.appendChild(btn);
+            });
+            area.classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('sub-quiz-modal').style.display = 'none'; }
+
+
+        // --- LOGIC PHẦN 2: AN TOÀN LAO ĐỘNG ---
+        let sIdx = 0; let sScore = 0; let isProcessing = false;
+
+        function loadSafetyQuestion() {
+            if(sIdx >= safetyQuestions.length) { showSafetyResult(); return; }
+            isProcessing = false;
+            const q = safetyQuestions[sIdx];
+            
+            document.getElementById('safety-progress-text').innerText = `${sIdx + 1}/${safetyQuestions.length}`;
+            document.getElementById('safety-live-score').innerText = sScore;
+            document.getElementById('safety-bar').style.width = `${((sIdx + 1) / safetyQuestions.length) * 100}%`;
+            document.getElementById('safety-q-text').innerText = q.q;
+            
+            const container = document.getElementById('safety-q-options'); container.innerHTML = '';
+            q.ops.forEach(op => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn text-lg py-5';
+                btn.innerHTML = `<span>${op}</span>`;
+                btn.onclick = () => handleSafetyChoice(op, q.a, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleSafetyChoice(choice, correct, btn) {
+            if(isProcessing) return;
+            isProcessing = true;
+
+            const allBtns = document.querySelectorAll('#safety-q-options button');
+            allBtns.forEach(b => b.classList.add('disabled'));
+
+            if(choice === correct) {
+                playSound('correct');
+                btn.classList.add('btn-correct');
+                sScore++; document.getElementById('safety-live-score').innerText = sScore;
+            } else {
+                playSound('wrong');
+                btn.classList.add('btn-wrong');
+                allBtns.forEach(b => { if(b.innerText === correct) b.classList.add('btn-correct'); });
+            }
+
+            setTimeout(() => { sIdx++; loadSafetyQuestion(); }, 1200);
+        }
+
+        function showSafetyResult() {
+            playSound('win');
+            document.getElementById('safety-quiz-box').classList.add('hidden');
+            document.getElementById('safety-result').classList.remove('hidden');
+            document.getElementById('safety-score-final').innerText = `Kết quả: ${sScore}/${safetyQuestions.length} câu đúng`;
+        }
+
+        function resetSafetyQuiz() {
+            sIdx = 0; sScore = 0;
+            document.getElementById('safety-quiz-box').classList.remove('hidden');
+            document.getElementById('safety-result').classList.add('hidden');
+            loadSafetyQuestion();
+        }
+
+        // --- LOGIC PHẦN 3: VÒNG QUAY 11A11 ---
+        let studentList = []; let isSpinning = false; let spinInterval;
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                studentList = text.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+                    .map(line => line.includes('|') ? line.split('|')[0].trim() : line);
+                document.getElementById('student-count').innerHTML = `<i class="fa-solid fa-check-circle text-emerald-400 mr-2"></i>Đã tải: ${studentList.length} học sinh`;
+                document.getElementById('name-display').innerText = "SẴN SÀNG";
+            };
+            reader.readAsText(file);
+        }
+
+        function spinRoulette() {
+            if(studentList.length === 0) { alert("Vui lòng tải danh sách lớp (.txt) trước!"); return; }
+            if(isSpinning) return;
+            
+            isSpinning = true; document.getElementById('btn-spin').disabled = true;
+            document.getElementById('tracking-controls').classList.add('hidden');
+            const display = document.getElementById('name-display');
+            display.classList.add('spin-active');
+            
+            let counter = 0; const maxSpins = 30;
+            spinInterval = setInterval(() => {
+                playSound('tick');
+                display.innerText = studentList[Math.floor(Math.random() * studentList.length)];
+                counter++;
+                if(counter >= maxSpins) { clearInterval(spinInterval); finishSpin(); }
+            }, 80);
+        }
+
+        function finishSpin() {
+            playSound('win');
+            const display = document.getElementById('name-display');
+            display.classList.remove('spin-active');
+            display.style.transform = "scale(1.1)";
+            setTimeout(() => display.style.transform = "scale(1)", 300);
+            
+            isSpinning = false; document.getElementById('btn-spin').disabled = false;
+            document.getElementById('current-selected-name').innerText = display.innerText;
+            document.getElementById('tracking-controls').classList.remove('hidden');
+        }
+
+        function recordResult(resultType) {
+            const name = document.getElementById('current-selected-name').innerText;
+            const tbody = document.getElementById('stat-table-body');
+            document.getElementById('empty-stat').classList.add('hidden');
+            
+            const tr = document.createElement('tr');
+            let badge = resultType === 'Đúng' 
+                ? `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-check"></i> Đúng</span>`
+                : `<span class="bg-rose-500/20 text-rose-400 border border-rose-500/50 px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-xmark"></i> Sai</span>`;
+            if(resultType === 'Đúng') playSound('correct'); else playSound('wrong');
+
+            tr.innerHTML = `<td class="font-bold text-slate-300">${name}</td><td class="text-center">${badge}</td>`;
+            tbody.insertBefore(tr, tbody.firstChild);
+            document.getElementById('tracking-controls').classList.add('hidden');
+        }
+
+        function clearStats() {
+            document.getElementById('stat-table-body').innerHTML = '';
+            document.getElementById('empty-stat').classList.remove('hidden');
+        }
+
+        // --- LOGIC PHẦN 4: TRẮC NGHIỆM HOLLAND ---
+        const hollandQuestions = [
+            {
+                q: "1. Trong thời gian rảnh rỗi, em thích làm việc gì nhất?",
+                ops: [
+                    { text: "Sửa chữa đồ đạc, làm mô hình, chơi thể thao", type: "R" },
+                    { text: "Đọc sách khoa học, giải đố, tìm hiểu cách máy móc hoạt động", type: "I" },
+                    { text: "Vẽ tranh, chơi nhạc cụ, chụp ảnh, viết lách", type: "A" },
+                    { text: "Gặp gỡ bạn bè, tham gia hoạt động tình nguyện", type: "S" },
+                    { text: "Tổ chức sự kiện, lên kế hoạch kiếm tiền, tranh luận", type: "E" },
+                    { text: "Sắp xếp lại phòng ốc, ghi chép thu chi, lập kế hoạch chi tiết", type: "C" }
+                ]
+            },
+            {
+                q: "2. Em tự nhận thấy mình là người như thế nào?",
+                ops: [
+                    { text: "Thực tế, thích hành động và làm việc chân tay", type: "R" },
+                    { text: "Tò mò, logic, thích phân tích vấn đề", type: "I" },
+                    { text: "Sáng tạo, bay bổng, có phong cách riêng", type: "A" },
+                    { text: "Thân thiện, biết lắng nghe, thích giúp đỡ người khác", type: "S" },
+                    { text: "Tự tin, quyết đoán, thích lãnh đạo và thuyết phục", type: "E" },
+                    { text: "Cẩn thận, tỉ mỉ, tuân thủ nguyên tắc và gọn gàng", type: "C" }
+                ]
+            },
+            {
+                q: "3. Nhóm môn học nào khiến em cảm thấy hứng thú nhất?",
+                ops: [
+                    { text: "Thể dục, Giáo dục Quốc phòng, Công nghệ", type: "R" },
+                    { text: "Toán học, Vật lý, Hóa học, Sinh học", type: "I" },
+                    { text: "Ngữ văn, Mỹ thuật, Âm nhạc", type: "A" },
+                    { text: "Giáo dục Công dân, Tâm lý học, Lịch sử", type: "S" },
+                    { text: "Kinh tế pháp luật, Quản trị, Hùng biện", type: "E" },
+                    { text: "Tin học văn phòng, Kế toán, Toán thống kê", type: "C" }
+                ]
+            },
+            {
+                q: "4. Khi đứng trước một vấn đề khó, em thường giải quyết ra sao?",
+                ops: [
+                    { text: "Bắt tay vào thử nghiệm và thực hành ngay lập tức", type: "R" },
+                    { text: "Suy nghĩ thật lâu để tìm ra nguyên nhân gốc rễ", type: "I" },
+                    { text: "Nghĩ ra một cách giải quyết mới lạ, không giống ai", type: "A" },
+                    { text: "Hỏi ý kiến bạn bè và thảo luận để cùng giải quyết", type: "S" },
+                    { text: "Chủ động phân công nhiệm vụ cho từng người trong nhóm", type: "E" },
+                    { text: "Lập danh sách các bước cần làm và tuân thủ chặt chẽ", type: "C" }
+                ]
+            },
+            {
+                q: "5. Môi trường làm việc mơ ước trong tương lai của em là gì?",
+                ops: [
+                    { text: "Ngoài trời, công trường, nhà máy hoặc xưởng cơ khí", type: "R" },
+                    { text: "Phòng thí nghiệm, viện nghiên cứu, môi trường học thuật", type: "I" },
+                    { text: "Studio nghệ thuật, sân khấu, không gian thiết kế tự do", type: "A" },
+                    { text: "Trường học, bệnh viện, các tổ chức cộng đồng", type: "S" },
+                    { text: "Công ty khởi nghiệp, văn phòng kinh doanh sôi động", type: "E" },
+                    { text: "Cơ quan nhà nước, ngân hàng, văn phòng có quy củ rõ ràng", type: "C" }
+                ]
+            }
+        ];
+
+        const hollandResults = {
+            "R": { title: "THỰC TẾ (Realistic)", icon: "🛠️", desc: "Em là người của hành động! Nhóm Thực tế thích làm việc với các vật thể, máy móc, công cụ, cây cối hoặc con vật. Em chuộng những công việc mang tính thực hành cao hơn là lý thuyết suông.", jobs: ["Kỹ sư cơ khí", "Lập trình viên (phần cứng)", "Công nhân kỹ thuật cao", "Nông nghiệp công nghệ cao", "Vận động viên"] },
+            "I": { title: "NGHIÊN CỨU (Investigative)", icon: "🔬", desc: "Em là một nhà tư duy xuất sắc! Nhóm Nghiên cứu thích quan sát, tìm tòi, điều tra và phân tích để giải quyết các vấn đề phức tạp. Em thường làm việc dựa trên tư duy logic và khoa học.", jobs: ["Bác sĩ", "Dược sĩ", "Lập trình viên (phần mềm)", "Nhà khoa học", "Chuyên viên phân tích dữ liệu"] },
+            "A": { title: "NGHỆ THUẬT (Artistic)", icon: "🎨", desc: "Sáng tạo là lẽ sống của em! Nhóm Nghệ thuật thích làm việc trong môi trường tự do, không khuôn mẫu. Em luôn muốn thể hiện bản thân qua trí tưởng tượng và các ý tưởng độc đáo.", jobs: ["Nhiếp ảnh gia", "Nhà thiết kế đồ họa", "Streamer / Food Reviewer", "Kiến trúc sư", "Nhà văn / Đạo diễn"] },
+            "S": { title: "XÃ HỘI (Social)", icon: "🤝", desc: "Trái tim ấm áp và sự thấu hiểu là vũ khí của em! Nhóm Xã hội thích làm việc với con người, giảng dạy, tư vấn, chăm sóc hoặc chữa trị cho người khác.", jobs: ["Giáo viên", "Bác sĩ tâm lý", "Hướng dẫn viên du lịch", "Huấn luyện viên cá nhân (PT)", "Nhân sự (HR)"] },
+            "E": { title: "QUẢN LÝ / DOANH NHÂN (Enterprising)", icon: "💼", desc: "Sinh ra để lãnh đạo! Nhóm Quản lý thích làm việc với con người nhưng với mục đích tác động, thuyết phục và lãnh đạo để đạt được mục tiêu chung hoặc lợi ích kinh tế.", jobs: ["Chủ quán / Doanh nhân", "Giám đốc", "Nhân viên kinh doanh (Sale)", "Marketing", "Luật sư"] },
+            "C": { title: "NGHIỆP VỤ (Conventional)", icon: "📑", desc: "Sự chuẩn xác tạo nên thành công của em! Nhóm Nghiệp vụ thích làm việc với dữ liệu, con số, hồ sơ và các quy trình chi tiết. Em là người rất cẩn thận và có tổ chức.", jobs: ["Kế toán", "Nhân viên Ngân hàng", "Thư ký / Trợ lý", "Chuyên viên kiểm toán", "Thủ thư"] }
+        };
+
+        let hScores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+        let hCurrentQ = 0;
+
+        function startHollandTest() {
+            playSound('tick');
+            hScores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+            hCurrentQ = 0;
+            document.getElementById('holland-intro').classList.add('hidden');
+            document.getElementById('holland-result').classList.add('hidden');
+            document.getElementById('holland-quiz').classList.remove('hidden');
+            loadHollandQ();
+        }
+
+        // Hàm xáo trộn mảng để đáp án không bị cố định vị trí (tránh học sinh đoán quy luật)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function loadHollandQ() {
+            if(hCurrentQ >= hollandQuestions.length) { showHollandResult(); return; }
+            
+            const qData = hollandQuestions[hCurrentQ];
+            document.getElementById('h-progress').innerText = `${hCurrentQ + 1}/${hollandQuestions.length}`;
+            document.getElementById('h-question').innerText = qData.q;
+            
+            const container = document.getElementById('h-options');
+            container.innerHTML = '';
+            
+            // Tạo bản sao của mảng đáp án và xáo trộn
+            const shuffledOps = shuffleArray([...qData.ops]);
+            
+            shuffledOps.forEach(op => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn hover:border-purple-500 hover:bg-purple-500/20 text-sm md:text-base py-4';
+                btn.innerHTML = `<span>${op.text}</span>`;
+                btn.onclick = () => selectHollandOp(op.type);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectHollandOp(type) {
+            playSound('tick');
+            hScores[type] += 1;
+            hCurrentQ++;
+            loadHollandQ();
+        }
+
+        function showHollandResult() {
+            playSound('win');
+            document.getElementById('holland-quiz').classList.add('hidden');
+            document.getElementById('holland-result').classList.remove('hidden');
+            
+            // Tìm trait có điểm cao nhất
+            let maxScore = -1;
+            let topTrait = 'R';
+            for (const [trait, score] of Object.entries(hScores)) {
+                if(score > maxScore) { maxScore = score; topTrait = trait; }
+            }
+            
+            const resultData = hollandResults[topTrait];
+            document.getElementById('h-res-icon').innerText = resultData.icon;
+            document.getElementById('h-res-title').innerText = resultData.title;
+            document.getElementById('h-res-desc').innerText = resultData.desc;
+            
+            const jobsContainer = document.getElementById('h-res-jobs');
+            jobsContainer.innerHTML = '';
+            resultData.jobs.forEach(job => {
+                const span = document.createElement('span');
+                span.className = 'bg-slate-800 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-full font-bold text-sm shadow-sm';
+                span.innerText = job;
+                jobsContainer.appendChild(span);
+            });
+        }
+
+        function resetHollandTest() {
+            document.getElementById('holland-intro').classList.remove('hidden');
+            document.getElementById('holland-result').classList.add('hidden');
+            playSound('tick');
+        }
+
+        // Khởi tạo ban đầu
+        window.onload = () => { 
+            initEraButtons(); 
+            if(eras.length > 0) loadEra(0, document.querySelector('.btn-era')); 
+        };
+    </script>
+</body>
+</html>
